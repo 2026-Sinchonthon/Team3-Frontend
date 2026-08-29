@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import BottomSheet from "../../common_ui/BottomSheet/BottomSheet";
 import CategoryFilter from "../../common_ui/CategoryFilter/CategoryFilter";
@@ -9,6 +9,10 @@ import TipListItem from "../../common_ui/TipListItem/TipListItem";
 import { DEFAULT_SORT } from "../../constants/sortOptions";
 import { mockPlaces, mockTips } from "../../data/mockTips";
 import groupTipsByPlace from "../../util/placeTips";
+import filterTips, {
+  normalizeKeyword,
+  toggleCategoryId,
+} from "../../util/tipFilter";
 import sortTips from "../../util/tipSort";
 import theme from "../../styles/theme";
 import HomeMap from "./HomeMap";
@@ -63,26 +67,20 @@ const FAB_BOTTOM = {
   half: `calc(${theme.sheetStage.half} + 1rem)`,
 };
 
-function matchesKeyword(tip, place, keyword) {
-  if (!keyword) return true;
-
-  return [tip.title, tip.content, place?.name, place?.address]
-    .filter(Boolean)
-    .some((text) => text.toLowerCase().includes(keyword));
-}
-
 export default function HomePage() {
   const navigate = useNavigate();
+  // 게시글 상세의 "지도에서 보기"로 들어오면 해당 장소를 바로 펼쳐 줍니다.
+  const focusPlaceId = useLocation().state?.focusPlaceId ?? null;
   const [keyword, setKeyword] = useState("");
   const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
-  const [selectedPlaceId, setSelectedPlaceId] = useState(null);
-  const [sheetStage, setSheetStage] = useState("collapsed");
+  const [selectedPlaceId, setSelectedPlaceId] = useState(focusPlaceId);
+  const [sheetStage, setSheetStage] = useState(focusPlaceId ? "half" : "collapsed");
   const [sortId, setSortId] = useState(DEFAULT_SORT);
   const [isLocating, setIsLocating] = useState(false);
   // HomeMap이 지도 조작 함수를 담아 주는 통로입니다.
   const mapControllerRef = useRef(null);
 
-  const trimmedKeyword = keyword.trim().toLowerCase();
+  const trimmedKeyword = normalizeKeyword(keyword);
   const isSearch = trimmedKeyword.length > 0;
 
   const placesById = useMemo(
@@ -90,28 +88,15 @@ export default function HomePage() {
     [],
   );
 
-  // 카테고리 + 검색어로 걸러낸 팁. 검색 중이면 관련도 점수를 함께 계산합니다.
+  // 홈은 장소명 / 주소까지 검색 대상에 넣습니다.
   const visibleTips = useMemo(
     () =>
-      mockTips
-        .filter((tip) => {
-          const matchesCategory =
-            selectedCategoryIds.length === 0 ||
-            selectedCategoryIds.includes(tip.categoryId);
-
-          return (
-            matchesCategory &&
-            matchesKeyword(tip, placesById.get(tip.placeId), trimmedKeyword)
-          );
-        })
-        .map((tip) => ({
-          ...tip,
-          relevanceScore: isSearch
-            ? Number(tip.title.toLowerCase().includes(trimmedKeyword)) * 2 +
-              Number(tip.content.toLowerCase().includes(trimmedKeyword))
-            : 0,
-        })),
-    [selectedCategoryIds, trimmedKeyword, isSearch, placesById],
+      filterTips(mockTips, {
+        keyword: trimmedKeyword,
+        categoryIds: selectedCategoryIds,
+        getPlace: (tip) => placesById.get(tip.placeId),
+      }),
+    [selectedCategoryIds, trimmedKeyword, placesById],
   );
 
   const placeGroups = useMemo(
@@ -130,11 +115,7 @@ export default function HomePage() {
   );
 
   const handleToggleCategory = useCallback((categoryId) => {
-    setSelectedCategoryIds((current) =>
-      current.includes(categoryId)
-        ? current.filter((id) => id !== categoryId)
-        : [...current, categoryId],
-    );
+    setSelectedCategoryIds((current) => toggleCategoryId(current, categoryId));
     setSelectedPlaceId(null);
   }, []);
 
