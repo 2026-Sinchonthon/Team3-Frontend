@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
 import { ArrowLeftIcon } from "../../common_ui/Icon/Icons";
-import { CATEGORIES } from "../../constants/categories";
+import { getCategories } from "../../util/PlaceAPI";
 import { createTip } from "../../util/TipAPI";
 import loadKakaoMap from "../../util/loadKakaoMap";
 
@@ -13,13 +13,38 @@ export default function FirstReg() {
   const navigate = useNavigate();
   const routeLocation = useLocation();
   const mapContainerRef = useRef(null);
-  const [categoryId, setCategoryId] = useState(CATEGORIES[0]?.id ?? null);
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [alert, setAlert] = useState(null);
   const nickname = routeLocation.state?.nickname || "자취 5년차";
+
+  useEffect(() => {
+    let active = true;
+
+    getCategories()
+      .then((items) => {
+        if (!active) return;
+        setCategories(items);
+        setCategoryId(items[0]?.id ?? null);
+      })
+      .catch((error) => {
+        if (active) {
+          setAlert({
+            color: "red",
+            title: "카테고리 조회 실패",
+            content: error.message,
+          });
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -125,14 +150,14 @@ export default function FirstReg() {
           <Section>
             <Label>어떤 꿀팁인가요?</Label>
             <CategoryList>
-              {CATEGORIES.map((category) => (
+              {categories.map((category) => (
                 <CategoryButton
                   key={category.id}
                   type="button"
                   $selected={categoryId === category.id}
                   onClick={() => setCategoryId(category.id)}
                 >
-                  {category.tag}
+                  {category.name}
                 </CategoryButton>
               ))}
             </CategoryList>

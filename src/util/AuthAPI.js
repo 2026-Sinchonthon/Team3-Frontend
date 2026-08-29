@@ -144,6 +144,30 @@ export function clearAuthSession() {
   window.google?.accounts?.id?.disableAutoSelect();
 }
 
+export async function refreshAccessToken() {
+  const response = await api.post(
+    "/api/v1/auth/token/refresh",
+    null,
+    { withCredentials: true },
+  );
+  const result = response.data;
+  const accessToken = result?.data?.accessToken;
+
+  if (!result?.success || !accessToken) {
+    clearAuthSession();
+    throw new Error(result?.message || "액세스 토큰을 재발급하지 못했습니다.");
+  }
+
+  authSession = {
+    ...authSession,
+    accessToken,
+    accessTokenExpiresIn: result.data.accessTokenExpiresIn,
+  };
+  api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+
+  return result.data;
+}
+
 export async function logout() {
   const response = await api.post(
     "/api/v1/auth/logout",

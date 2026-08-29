@@ -24,16 +24,20 @@ const List = styled.div`
   }
 `;
 
-export default function CategoryFilter({ selectedIds = [], onToggle }) {
+export default function CategoryFilter({
+  categories = CATEGORIES,
+  selectedIds = [],
+  onToggle,
+}) {
   return (
     <List role="group" aria-label="카테고리 필터">
-      {CATEGORIES.map((category) => (
+      {categories.map((category) => (
         <Chip
           key={category.id}
           selected={selectedIds.includes(category.id)}
           onClick={() => onToggle?.(category.id)}
         >
-          {category.name}
+          {category.name ?? category.tag}
         </Chip>
       ))}
     </List>

@@ -13,7 +13,15 @@ import {
 import StaticLocationMap from "../../common_ui/StaticLocationMap/StaticLocationMap";
 import getResidenceLabel from "../../constants/residence";
 import formatTipDateTime from "../../util/formatDate";
-import { createComment, getComments, getTipById } from "../../util/TipAPI";
+import {
+  cancelTipReaction,
+  cancelTipScrap,
+  createComment,
+  getComments,
+  getTipById,
+  reactToTip,
+  scrapTip,
+} from "../../util/TipAPI";
 import { followUser, unfollowUser } from "../../util/UserAPI";
 
 /*
@@ -324,15 +332,19 @@ const LoadingMessage = styled.p`
   text-align: center;
 `;
 
-const withReaction = (count, isActive) => (count ?? 0) + (isActive ? 1 : 0);
-
 // 댓글 / 반응 / 팔로우는 게시글마다 새로 시작해야 하므로 tipId를 함께 들고 다닙니다.
 const EMPTY_THREAD = {
   tipId: "",
   comments: [],
   draft: "",
   isFollowing: false,
-  reaction: { liked: false, disliked: false, scrapped: false },
+  reaction: {
+    liked: false,
+    disliked: false,
+    scrapped: false,
+    likeCount: 0,
+    dislikeCount: 0,
+  },
 };
 
 export default function TipFeed() {
@@ -341,6 +353,7 @@ export default function TipFeed() {
   const commentInputRef = useRef(null);
   const [tipState, setTipState] = useState({ tipId: "", tip: null, error: "" });
   const [threadState, setThreadState] = useState(EMPTY_THREAD);
+  const [actionError, setActionError] = useState("");
 
   const isCurrentTip = tipState.tipId === tipId;
   const tip = isCurrentTip ? tipState.tip : null;
@@ -366,6 +379,13 @@ export default function TipFeed() {
           ...EMPTY_THREAD,
           tipId,
           isFollowing: Boolean(tipDetail.author?.isFollowing),
+          reaction: {
+            ...EMPTY_THREAD.reaction,
+            liked: tipDetail.myReaction === true,
+            disliked: tipDetail.myReaction === false,
+            likeCount: tipDetail.likeCount ?? 0,
+            dislikeCount: tipDetail.dislikeCount ?? 0,
+          },
         });
 
         return getComments(tipId);
@@ -402,31 +422,47 @@ export default function TipFeed() {
     (next ? followUser : unfollowUser)(tip?.author?.id);
   };
 
-  const handleToggleLike = () =>
-    updateThread((current) => ({
-      ...current,
-      reaction: {
-        ...current.reaction,
-        liked: !current.reaction.liked,
-        disliked: current.reaction.liked ? current.reaction.disliked : false,
-      },
-    }));
+  const saveReaction = async (isLike) => {
+    try {
+      const isSameReaction = isLike ? reaction.liked : reaction.disliked;
+      const result = isSameReaction
+        ? await cancelTipReaction(tipId)
+        : await reactToTip(tipId, isLike);
 
-  const handleToggleDislike = () =>
-    updateThread((current) => ({
-      ...current,
-      reaction: {
-        ...current.reaction,
-        liked: current.reaction.disliked ? current.reaction.liked : false,
-        disliked: !current.reaction.disliked,
-      },
-    }));
+      updateThread((current) => ({
+        ...current,
+        reaction: {
+          ...current.reaction,
+          liked: result.myReaction === true,
+          disliked: result.myReaction === false,
+          likeCount: result.likeCount ?? 0,
+          dislikeCount: result.dislikeCount ?? 0,
+        },
+      }));
+    } catch (requestError) {
+      setActionError(requestError.message || "반응을 저장하지 못했습니다.");
+    }
+  };
 
-  const handleToggleScrap = () =>
-    updateThread((current) => ({
-      ...current,
-      reaction: { ...current.reaction, scrapped: !current.reaction.scrapped },
-    }));
+  const handleToggleLike = () => saveReaction(true);
+  const handleToggleDislike = () => saveReaction(false);
+
+  const handleToggleScrap = async () => {
+    try {
+      if (reaction.scrapped) await cancelTipScrap(tipId);
+      else await scrapTip(tipId);
+
+      updateThread((current) => ({
+        ...current,
+        reaction: {
+          ...current.reaction,
+          scrapped: !current.reaction.scrapped,
+        },
+      }));
+    } catch (requestError) {
+      setActionError(requestError.message || "스크랩을 저장하지 못했습니다.");
+    }
+  };
 
   const handleSubmitComment = async (event) => {
     event.preventDefault();
@@ -434,13 +470,17 @@ export default function TipFeed() {
 
     if (!content) return;
 
-    const comment = await createComment(tipId, content);
+    try {
+      const comment = await createComment(tipId, content);
 
-    updateThread((current) => ({
-      ...current,
-      comments: [...current.comments, comment],
-      draft: "",
-    }));
+      updateThread((current) => ({
+        ...current,
+        comments: [...current.comments, comment],
+        draft: "",
+      }));
+    } catch (requestError) {
+      setActionError(requestError.message || "댓글을 등록하지 못했습니다.");
+    }
   };
 
   if (!isCurrentTip && !error) {
@@ -523,7 +563,7 @@ export default function TipFeed() {
                     onClick={handleToggleLike}
                   >
                     <HeartIcon filled={reaction.liked} />
-                    좋아요 {withReaction(tip.likeCount, reaction.liked)}
+                    좋아요 {reaction.likeCount}
                   </Reaction>
                   <Reaction
                     type="button"
@@ -532,7 +572,7 @@ export default function TipFeed() {
                     onClick={handleToggleDislike}
                   >
                     <MehIcon />
-                    비추 {withReaction(tip.dislikeCount, reaction.disliked)}
+                    비추 {reaction.dislikeCount}
                   </Reaction>
                   <Reaction
                     type="button"
@@ -548,7 +588,7 @@ export default function TipFeed() {
                     onClick={handleToggleScrap}
                   >
                     <InboxIcon filled={reaction.scrapped} />
-                    스크랩 {withReaction(tip.scrapCount, reaction.scrapped)}
+                    스크랩
                   </Reaction>
                 </Reactions>
               </PostBody>
@@ -599,6 +639,17 @@ export default function TipFeed() {
           content={error}
           onConfirm={() => navigate("/")}
           onClose={() => navigate("/")}
+        />
+      )}
+
+      {actionError && (
+        <AlertModal
+          type="alert"
+          color="red"
+          title="요청 실패"
+          content={actionError}
+          onConfirm={() => setActionError("")}
+          onClose={() => setActionError("")}
         />
       )}
     </Page>
