@@ -119,23 +119,6 @@ cd Team3-Frontend
 npm install
 ```
 
-### 3. 환경 변수 설정
-
-루트에 `.env` 파일을 만들고 아래 값을 채웁니다.
-
-```env
-# 카카오 지도 JavaScript 키 (지도 렌더링 · 클러스터링)
-VITE_JS_KAKAO_API_KEY=
-
-# 카카오 REST API 키 (장소 검색)
-VITE_KAKAO_REST_API_KEY=
-
-# 백엔드 서버 주소 (미설정 시 http://localhost:8080)
-VITE_BACKEND_URL=
-
-# Google OAuth 클라이언트 ID
-VITE_GOOGLE_CLIENT_ID=
-```
 
 ### 4. 개발 서버 실행
 
