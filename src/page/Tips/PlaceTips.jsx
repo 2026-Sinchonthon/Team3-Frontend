@@ -46,11 +46,14 @@ const TipList = styled.ul`
   list-style: none;
 `;
 
-const TipItem = styled.article`
+const TipItem = styled.button`
+  width: 100%;
   padding: 1rem;
   border: 0.0625rem solid #dedede;
   border-radius: 0.5rem;
   background: #fff;
+  text-align: left;
+  cursor: pointer;
 `;
 
 const TipTitle = styled.h2`
@@ -152,7 +155,10 @@ export default function PlaceTips() {
         <TipList>
           {tips.map((tip) => (
             <li key={tip.id}>
-              <TipItem>
+              <TipItem
+                type="button"
+                onClick={() => navigate(`/tips/${tip.id}`)}
+              >
                 <TipTitle>{tip.title}</TipTitle>
                 <TipContent>{tip.content}</TipContent>
               </TipItem>

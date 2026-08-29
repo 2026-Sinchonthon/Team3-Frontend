@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
+import StaticLocationMap from "../../common_ui/StaticLocationMap/StaticLocationMap";
 import { createTip } from "../../util/TipAPI";
-import StaticLocationMap from "./StaticLocationMap";
 
 const Container = styled.section`
   width: min(100%, 40rem);
