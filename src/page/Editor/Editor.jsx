@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
 import StaticLocationMap from "../../common_ui/StaticLocationMap/StaticLocationMap";
+import { CATEGORIES } from "../../constants/categories";
 import { createTip } from "../../util/TipAPI";
 
 const Container = styled.section`
@@ -47,6 +48,16 @@ const Textarea = styled.textarea`
   resize: vertical;
 `;
 
+const Select = styled.select`
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 0.875rem;
+  border: 0.0625rem solid #d7d7d7;
+  border-radius: 0.5rem;
+  background: #fff;
+  font: inherit;
+`;
+
 const LocationBox = styled.div`
   padding: 1rem;
   border: 0.0625rem solid #dedede;
@@ -84,22 +95,43 @@ const SaveButton = styled.button`
 export default function Editor() {
   const navigate = useNavigate();
   const routeLocation = useLocation();
-  const [selectedLocation] = useState(routeLocation.state?.location ?? null);
+  const [selectedLocation] = useState(
+    routeLocation.state?.location ?? routeLocation.state?.place ?? null,
+  );
+  const [categoryId, setCategoryId] = useState(CATEGORIES[0]?.id ?? "");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  const latitude = Number(
+    selectedLocation?.latitude ?? selectedLocation?.lat,
+  );
+  const longitude = Number(
+    selectedLocation?.longitude ?? selectedLocation?.lng,
+  );
+  const hasCoordinates =
+    Number.isFinite(latitude) && Number.isFinite(longitude);
+  const mapLocation = selectedLocation
+    ? { ...selectedLocation, lat: latitude, lng: longitude }
+    : null;
 
   const closeAlert = () => setAlert(null);
 
   const handleSave = async (event) => {
     event.preventDefault();
 
-    if (!selectedLocation || !title.trim() || !content.trim()) {
+    if (
+      !categoryId ||
+      !selectedLocation ||
+      !hasCoordinates ||
+      !title.trim() ||
+      !content.trim()
+    ) {
       setAlert({
         color: "yellow",
         title: "입력 내용을 확인해 주세요",
-        content: "장소, 제목, 내용을 모두 입력해야 합니다.",
+        content: "카테고리, 장소, 제목, 내용을 모두 입력해야 합니다.",
       });
       return;
     }
@@ -107,9 +139,16 @@ export default function Editor() {
     try {
       setIsSaving(true);
       await createTip({
+        categoryId,
         title: title.trim(),
         content: content.trim(),
-        location: selectedLocation,
+        location: {
+          id: selectedLocation.id,
+          name: selectedLocation.name,
+          address: selectedLocation.address,
+          latitude,
+          longitude,
+        },
       });
       setAlert({
         color: "green",
@@ -121,7 +160,10 @@ export default function Editor() {
       setAlert({
         color: "red",
         title: "저장 실패",
-        content: error.message || "팁을 저장하지 못했습니다.",
+        content:
+          error.response?.data?.message ||
+          error.message ||
+          "팁을 저장하지 못했습니다.",
       });
     } finally {
       setIsSaving(false);
@@ -133,11 +175,27 @@ export default function Editor() {
       <Heading>팁 작성</Heading>
       <Form onSubmit={handleSave}>
         <Field>
+          카테고리
+          <Select
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+            disabled={isSaving}
+          >
+            {CATEGORIES.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.tag}
+              </option>
+            ))}
+          </Select>
+        </Field>
+
+        <Field>
           제목
           <Input
             value={title}
             placeholder="제목을 입력해 주세요"
             onChange={(event) => setTitle(event.target.value)}
+            disabled={isSaving}
           />
         </Field>
 
@@ -147,6 +205,7 @@ export default function Editor() {
             value={content}
             placeholder="공유할 팁을 입력해 주세요"
             onChange={(event) => setContent(event.target.value)}
+            disabled={isSaving}
           />
         </Field>
 
@@ -158,9 +217,11 @@ export default function Editor() {
                 <LocationName>{selectedLocation.name}</LocationName>
                 <LocationDetail>{selectedLocation.address}</LocationDetail>
                 <LocationDetail>
-                  {selectedLocation.lat}, {selectedLocation.lng}
+                  {hasCoordinates
+                    ? `${latitude}, ${longitude}`
+                    : "위치 좌표가 없습니다."}
                 </LocationDetail>
-                <StaticLocationMap location={selectedLocation} />
+                <StaticLocationMap location={mapLocation} />
               </>
             ) : (
               <LocationDetail>선택된 위치가 없습니다.</LocationDetail>

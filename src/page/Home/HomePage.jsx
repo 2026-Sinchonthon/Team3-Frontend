@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import BottomSheet from "../../common_ui/BottomSheet/BottomSheet";
@@ -12,6 +12,7 @@ import groupTipsByPlace from "../../util/placeTips";
 import sortTips from "../../util/tipSort";
 import theme from "../../styles/theme";
 import HomeMap from "./HomeMap";
+import LocateButton from "./LocateButton";
 import WriteFab from "./WriteFab";
 
 /*
@@ -77,6 +78,9 @@ export default function HomePage() {
   const [selectedPlaceId, setSelectedPlaceId] = useState(null);
   const [sheetStage, setSheetStage] = useState("collapsed");
   const [sortId, setSortId] = useState(DEFAULT_SORT);
+  const [isLocating, setIsLocating] = useState(false);
+  // HomeMap이 지도 조작 함수를 담아 주는 통로입니다.
+  const mapControllerRef = useRef(null);
 
   const trimmedKeyword = keyword.trim().toLowerCase();
   const isSearch = trimmedKeyword.length > 0;
@@ -160,6 +164,12 @@ export default function HomePage() {
     [navigate, selectedGroup],
   );
 
+  const handleLocate = useCallback(async () => {
+    setIsLocating(true);
+    await mapControllerRef.current?.moveToCurrentLocation();
+    setIsLocating(false);
+  }, []);
+
   return (
     <Container>
       <HomeMap
@@ -167,6 +177,7 @@ export default function HomePage() {
         selectedPlaceId={selectedPlaceId}
         onSelectPlace={handleSelectPlace}
         onClearSelection={handleClearSelection}
+        controllerRef={mapControllerRef}
       />
 
       <MapOverlay>
@@ -178,7 +189,14 @@ export default function HomePage() {
       </MapOverlay>
 
       {sheetStage !== "full" && (
-        <WriteFab bottom={FAB_BOTTOM[sheetStage]} onClick={handleWrite} />
+        <>
+          <WriteFab bottom={FAB_BOTTOM[sheetStage]} onClick={handleWrite} />
+          <LocateButton
+            bottom={FAB_BOTTOM[sheetStage]}
+            isLocating={isLocating}
+            onClick={handleLocate}
+          />
+        </>
       )}
 
       <BottomSheet
