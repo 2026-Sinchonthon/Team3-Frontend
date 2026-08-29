@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import AlertModal from "../../common_ui/Alert/Alert";
 import {
-  getAuthenticatedUserId,
   loginWithGoogle,
   renderGoogleLoginButton,
 } from "../../util/AuthAPI";
@@ -58,29 +57,6 @@ export default function LoginPage() {
   const [alert, setAlert] = useState(null);
 
   useEffect(() => {
-    /*
-     * 이미 현재 SPA 세션에서 인증된 사용자라면
-     * Google 로그인 버튼을 다시 렌더하지 않고 바로 이동합니다.
-     */
-    const authenticatedUserId = getAuthenticatedUserId();
-
-    if (authenticatedUserId != null) {
-      const requestedPath = location.state?.from;
-
-      const destination =
-        typeof requestedPath === "string" &&
-          requestedPath.startsWith("/") &&
-          requestedPath !== "/login"
-          ? requestedPath
-          : "/";
-
-      navigate(destination, {
-        replace: true,
-      });
-
-      return;
-    }
-
     let cleanupButton;
     let isActive = true;
 
