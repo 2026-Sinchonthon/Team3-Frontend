@@ -195,7 +195,10 @@ export default function SearchResult() {
                     <ResultButton
                       type="button"
                       onClick={() =>
-                        navigate("/editor", { state: { location: result } })
+                        navigate(
+                          `/places/${encodeURIComponent(result.id)}/tips`,
+                          { state: { location: result } },
+                        )
                       }
                     >
                       <Name>{result.name}</Name>
