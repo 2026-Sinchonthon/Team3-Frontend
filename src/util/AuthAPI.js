@@ -6,6 +6,7 @@ let googleScriptPromise;
 let isGoogleInitialized = false;
 let credentialHandler;
 let authSession = null;
+const googleButtonRenderTokens = new WeakMap();
 
 function loadGoogleIdentityServices() {
   if (window.google?.accounts?.id) return Promise.resolve(window.google);
@@ -40,13 +41,20 @@ function loadGoogleIdentityServices() {
   return googleScriptPromise;
 }
 
-export async function renderGoogleLoginButton(container, onCredential) {
+export async function renderGoogleLoginButton(
+  container,
+  onCredential,
+  { signal } = {},
+) {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   if (!clientId) throw new Error("Google Client ID가 설정되지 않았습니다.");
   if (!container) throw new Error("Google 로그인 버튼 영역이 없습니다.");
+  if (signal?.aborted) return () => {};
 
   const google = await loadGoogleIdentityServices();
+
+  if (signal?.aborted) return () => {};
 
   if (!google?.accounts?.id) {
     throw new Error("Google 로그인 모듈을 초기화하지 못했습니다.");
@@ -62,6 +70,8 @@ export async function renderGoogleLoginButton(container, onCredential) {
     isGoogleInitialized = true;
   }
 
+  const renderToken = Symbol("google-login-button");
+  googleButtonRenderTokens.set(container, renderToken);
   container.replaceChildren();
   google.accounts.id.renderButton(container, {
     type: "standard",
@@ -75,7 +85,11 @@ export async function renderGoogleLoginButton(container, onCredential) {
 
   return () => {
     if (credentialHandler === onCredential) credentialHandler = undefined;
-    container.replaceChildren();
+
+    if (googleButtonRenderTokens.get(container) === renderToken) {
+      googleButtonRenderTokens.delete(container);
+      container.replaceChildren();
+    }
   };
 }
 

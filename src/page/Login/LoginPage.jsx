@@ -69,6 +69,7 @@ export default function LoginPage() {
   useEffect(() => {
     let cleanupButton;
     let isActive = true;
+    const abortController = new AbortController();
 
     const handleCredential = async (idToken) => {
       try {
@@ -98,13 +99,15 @@ export default function LoginPage() {
       }
     };
 
-    renderGoogleLoginButton(googleButtonRef.current, handleCredential)
+    renderGoogleLoginButton(googleButtonRef.current, handleCredential, {
+      signal: abortController.signal,
+    })
       .then((cleanup) => {
         if (isActive) cleanupButton = cleanup;
         else cleanup();
       })
       .catch((error) => {
-        if (isActive) {
+        if (isActive && !abortController.signal.aborted) {
           setAlert({
             color: "red",
             title: "로그인 준비 실패",
@@ -115,6 +118,7 @@ export default function LoginPage() {
 
     return () => {
       isActive = false;
+      abortController.abort();
       cleanupButton?.();
     };
   }, []);
