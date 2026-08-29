@@ -110,6 +110,16 @@ const Content = styled.div`
   opacity: ${({ $hidden }) => ($hidden ? 0 : 1)};
   touch-action: ${({ $scrollable }) => ($scrollable ? "pan-y" : "none")};
   transition: opacity 0.2s ease;
+
+  /* 스크롤은 되지만 스크롤바는 보이지 않게 합니다. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* 구형 Edge */
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
 `;
 
 export default function BottomSheet({
