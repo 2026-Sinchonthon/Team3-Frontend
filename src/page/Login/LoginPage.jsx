@@ -142,7 +142,7 @@ export default function LoginPage() {
         requestedPath.startsWith("/") &&
         requestedPath !== "/login"
           ? requestedPath
-          : "/user";
+          : "/";
 
       navigate(destination, { replace: true });
       return;

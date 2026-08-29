@@ -3,8 +3,7 @@ import api from "./axios";
 const GOOGLE_SCRIPT_ID = "google-identity-services";
 
 let googleScriptPromise;
-let isGoogleInitialized = false;
-let credentialHandler;
+let currentCredentialCallback = null;
 let authSession = null;
 const googleButtonRenderTokens = new WeakMap();
 
@@ -60,15 +59,19 @@ export async function renderGoogleLoginButton(
     throw new Error("Google 로그인 모듈을 초기화하지 못했습니다.");
   }
 
-  credentialHandler = onCredential;
+  currentCredentialCallback = onCredential;
 
-  if (!isGoogleInitialized) {
-    google.accounts.id.initialize({
-      client_id: clientId,
-      callback: (response) => credentialHandler?.(response.credential),
-    });
-    isGoogleInitialized = true;
-  }
+  google.accounts.id.initialize({
+    client_id: clientId,
+    callback: (response) => {
+      if (response?.credential) {
+        currentCredentialCallback?.(response.credential);
+      }
+    },
+    auto_select: false,
+    use_fedcm_for_prompt: true,
+    itp_support: true,
+  });
 
   const renderToken = Symbol("google-login-button");
   googleButtonRenderTokens.set(container, renderToken);
@@ -84,7 +87,9 @@ export async function renderGoogleLoginButton(
   });
 
   return () => {
-    if (credentialHandler === onCredential) credentialHandler = undefined;
+    if (currentCredentialCallback === onCredential) {
+      currentCredentialCallback = null;
+    }
 
     if (googleButtonRenderTokens.get(container) === renderToken) {
       googleButtonRenderTokens.delete(container);
@@ -101,14 +106,28 @@ export async function loginWithGoogle(idToken) {
     { idToken },
     { withCredentials: true },
   );
-  const loginData = response.data?.data;
 
-  if (!loginData?.accessToken || loginData.userId == null) {
+  const rawData = response.data?.data ?? response.data;
+  const userId = rawData?.userId ?? rawData?.id ?? rawData?.user?.id;
+  const accessToken = rawData?.accessToken ?? rawData?.token;
+  const accessTokenExpiresIn =
+    rawData?.accessTokenExpiresIn ?? rawData?.expiresIn;
+  const isNewUser = Boolean(rawData?.isNewUser);
+
+  if (!accessToken || userId == null) {
     throw new Error("로그인 응답 형식이 올바르지 않습니다.");
   }
 
+  const loginData = {
+    userId,
+    accessToken,
+    accessTokenExpiresIn,
+    isNewUser,
+    ...rawData,
+  };
+
   authSession = loginData;
-  api.defaults.headers.common.Authorization = `Bearer ${loginData.accessToken}`;
+  api.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
 
   return loginData;
 }

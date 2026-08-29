@@ -16,8 +16,15 @@ export async function getUserProfile(userId) {
   // TODO: API 명세 확정 후 사용자 프로필 조회 요청을 구현합니다.
   const user = mockUserDetails.find(({ id }) => String(id) === String(userId));
 
-  if (!user) throw new Error("존재하지 않는 사용자입니다.");
-  return user;
+  if (user) return user;
+
+  return {
+    id: userId,
+    nickname: "신촌자취생",
+    profileImageUrl: "/default-profile.svg",
+    followerCount: 0,
+    isFollowing: false,
+  };
 }
 
 export async function followUser() {
