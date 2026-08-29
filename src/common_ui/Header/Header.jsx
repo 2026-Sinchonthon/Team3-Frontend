@@ -1,3 +1,8 @@
+/*
+목적: 상단 내비바 자리.
+홈 화면은 검색창과 카테고리 필터를 지도 위에 직접 띄우기 때문에 상단 내비바를 쓰지 않습니다.
+게시판 / 게시글 상세 등에서 필요해지면 이 컴포넌트를 채워 주세요.
+*/
 export default function Header() {
-  return <header />;
+  return null;
 }
