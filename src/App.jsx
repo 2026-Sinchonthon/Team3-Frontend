@@ -12,6 +12,7 @@ import SearchResult from "./page/SearchResult/SearchResult";
 import TipFeed from "./page/Tips/TipFeed";
 import UserPage from "./page/User/UserPage";
 import theme from "./styles/theme";
+import FirstReg from "./page/Signup/FirstReg";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/signup" element={<SignupPage />} />
 
         <Route element={<ProtectedRoute />}>
+          <Route path="/start" element={<FirstReg />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/search" element={<SearchResult />} />
