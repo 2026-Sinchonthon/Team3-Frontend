@@ -66,6 +66,8 @@ export default function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
+  if (/^\/user(\/[^/]+)?$/.test(pathname)) return null;
+
   const matched = PAGE_TITLES.find(({ pattern }) => pattern.test(pathname));
 
   if (!matched) return null;

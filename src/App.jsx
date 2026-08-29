@@ -11,6 +11,7 @@ import PlaceTips from "./page/Tips/PlaceTips";
 import SearchResult from "./page/SearchResult/SearchResult";
 import TipFeed from "./page/Tips/TipFeed";
 import UserPage from "./page/User/UserPage";
+import UserPostsPage from "./page/User/UserPostsPage";
 import theme from "./styles/theme";
 import FirstReg from "./page/Signup/FirstReg";
 
@@ -30,6 +31,7 @@ export default function App() {
             <Route path="/editor" element={<Editor />} />
             <Route path="/tips/:tipId" element={<TipFeed />} />
             <Route path="/user" element={<UserPage />} />
+            <Route path="/user/posts" element={<UserPostsPage />} />
             <Route path="/user/:userId" element={<UserPage />} />
             {/* 게시판이 붙기 전까지의 임시 안내 */}
             <Route path="*" element={<ComingSoon />} />
