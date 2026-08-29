@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
+import StaticLocationMap from "../../common_ui/StaticLocationMap/StaticLocationMap";
 import { getTipById } from "../../util/TipAPI";
 
 const Container = styled.article`
@@ -135,6 +136,7 @@ export default function TipFeed() {
             <LocationDetail>
               {tip.location.lat}, {tip.location.lng}
             </LocationDetail>
+            <StaticLocationMap location={tip.location} />
           </LocationSection>
         </>
       )}
