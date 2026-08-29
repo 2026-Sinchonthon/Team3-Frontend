@@ -1,4 +1,5 @@
 import mockUserDetails from "../data/mockUserDetails";
+import api from "./axios";
 import { getAuthenticatedUserId } from "./AuthAPI";
 import { getTips } from "./TipAPI";
 
@@ -12,7 +13,17 @@ export function getCurrentUserId() {
 export async function submitOnboarding({ nickname, livingAloneYears }) {
   if (!nickname) throw new Error("닉네임을 입력해 주세요.");
   if (livingAloneYears == null) throw new Error("자취 연차를 선택해 주세요.");
-  throw new Error("온보딩 API가 현재 Swagger 명세에 없습니다.");
+
+  const response = await api.patch(
+    "/api/users/me/onboarding",
+    {
+      nickname: String(nickname).trim(),
+      livingAloneYears: Number(livingAloneYears),
+    },
+    { withCredentials: true },
+  );
+
+  return response.data;
 }
 
 export async function searchUsers() {
@@ -40,6 +51,21 @@ export async function getUserProfile(userId) {
 }
 
 export async function getMyTips({ page = 0, size = 20 } = {}) {
+  const response = await api.get("/api/v1/users/me/tips", {
+    params: { page, size },
+    withCredentials: true,
+  });
+  const result = response.data;
+  const data = result?.data;
+
+  if (!result?.success || result.code !== 200 || !Array.isArray(data?.tips)) {
+    throw new Error(result?.message || "내 게시글 응답 형식이 올바르지 않습니다.");
+  }
+
+  return data;
+}
+
+export async function getMyTipsFromFeed({ page = 0, size = 20 } = {}) {
   const userId = getAuthenticatedUserId();
   if (userId == null) throw new Error("로그인 사용자 정보가 필요합니다.");
 
@@ -63,9 +89,9 @@ export async function getMyTips({ page = 0, size = 20 } = {}) {
 }
 
 export async function followUser() {
-  throw new Error("팔로우 API가 현재 Swagger 명세에 없습니다.");
+  // TODO: API 명세 확정 후 팔로우 요청을 구현합니다.
 }
 
 export async function unfollowUser() {
-  throw new Error("언팔로우 API가 현재 Swagger 명세에 없습니다.");
+  // TODO: API 명세 확정 후 언팔로우 요청을 구현합니다.
 }
