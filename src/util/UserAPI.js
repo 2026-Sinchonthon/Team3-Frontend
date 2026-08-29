@@ -39,9 +39,29 @@ export async function getUserProfile(userId) {
     id: userId,
     nickname: "신촌자취생",
     profileImageUrl: "/default-profile.svg",
+    residenceYears: 0,
+    trustScore: 0,
+    postCount: 0,
     followerCount: 0,
+    followingCount: 0,
     isFollowing: false,
+    tips: [],
   };
+}
+
+export async function getMyTips({ page = 0, size = 20 } = {}) {
+  const response = await api.get("/api/v1/users/me/tips", {
+    params: { page, size },
+    withCredentials: true,
+  });
+  const result = response.data;
+  const data = result?.data;
+
+  if (!result?.success || result.code !== 200 || !Array.isArray(data?.tips)) {
+    throw new Error(result?.message || "내 게시글 응답 형식이 올바르지 않습니다.");
+  }
+
+  return data;
 }
 
 export async function followUser() {

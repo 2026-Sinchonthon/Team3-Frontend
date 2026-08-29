@@ -8,7 +8,8 @@ import { ArrowLeftIcon } from "../Icon/Icons";
 
 구성: 뒤로가기 버튼 + 가운데 정렬된 화면 제목
 
-홈 화면은 검색창과 카테고리 필터를 지도 위에 직접 띄우므로 상단 바를 쓰지 않습니다.
+홈 / 게시판 화면은 검색창과 카테고리 필터를 화면에 직접 띄우므로 상단 바를 쓰지 않습니다.
+게시글 상세도 뒤로가기 버튼을 본문 안에 두는 디자인이라 제외합니다.
 그 외 화면은 경로에 맞는 제목을 자동으로 붙입니다.
 새 화면이 생기면 PAGE_TITLES 에 한 줄만 추가하면 됩니다.
 
@@ -18,7 +19,6 @@ const PAGE_TITLES = [
   { pattern: /^\/editor$/, title: "글쓰기" },
   { pattern: /^\/search$/, title: "검색" },
   { pattern: /^\/places\/[^/]+\/tips$/, title: "꿀팁 목록" },
-  { pattern: /^\/tips\/[^/]+$/, title: "게시글" },
   { pattern: /^\/user(\/[^/]+)?$/, title: "마이페이지" },
 ];
 
@@ -65,6 +65,8 @@ const Title = styled.h1`
 export default function Header() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
+
+  if (/^\/user(\/[^/]+)?$/.test(pathname)) return null;
 
   const matched = PAGE_TITLES.find(({ pattern }) => pattern.test(pathname));
 
