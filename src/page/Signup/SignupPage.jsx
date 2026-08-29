@@ -317,8 +317,13 @@ export default function SignupPage() {
         livingAloneYears: selectedResidence.years,
       });
 
-      // API 성공 시 2단계 시작하기 화면으로 이동
-      setStep(2);
+      navigate("/start", {
+        replace: true,
+        state: {
+          nickname: nickname.trim(),
+          from: location.state?.from,
+        },
+      });
     } catch (error) {
       setAlert({
         color: "red",
