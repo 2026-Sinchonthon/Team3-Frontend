@@ -3,7 +3,7 @@ const mockTipDetails = [
     id: -1,
     author: {
       nickname: "신촌자취생",
-      livingYears: 3,
+      trustScore: 92,
     },
     category: "교통",
     title: "서강대 후문으로 빠르게 가는 방법",

@@ -21,7 +21,7 @@ const Nickname = styled.strong`
   font-size: 1rem;
 `;
 
-const LivingYears = styled.span`
+const TrustScore = styled.span`
   color: #666;
   font-size: 0.875rem;
 `;
@@ -122,7 +122,7 @@ export default function TipFeed() {
         <>
           <AuthorRow>
             <Nickname>{tip.author.nickname}</Nickname>
-            <LivingYears>자취 {tip.author.livingYears}년차</LivingYears>
+            <TrustScore>신뢰지수 {tip.author.trustScore}%</TrustScore>
           </AuthorRow>
           <Category>{tip.category}</Category>
           <Title>{tip.title}</Title>
