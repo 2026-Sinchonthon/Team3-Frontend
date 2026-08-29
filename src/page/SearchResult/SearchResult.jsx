@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
-import mockLocations from "../../data/mockLocations";
+import searchPlaces from "../../util/searchPlaces";
 
 const Container = styled.section`
   width: min(100%, 40rem);
@@ -80,14 +80,41 @@ export default function SearchResult() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q")?.trim() ?? "";
   const [keyword, setKeyword] = useState(query);
-  const normalizedQuery = query.toLowerCase();
-  const results = query
-    ? mockLocations.filter(
-        ({ name, address }) =>
-          name.toLowerCase().includes(normalizedQuery) ||
-          address.toLowerCase().includes(normalizedQuery),
-      )
-    : [];
+  const [searchState, setSearchState] = useState({
+    query: "",
+    results: [],
+    error: "",
+  });
+  const isCurrentQuery = searchState.query === query;
+  const isLoading = Boolean(query) && !isCurrentQuery;
+  const results = isCurrentQuery ? searchState.results : [];
+  const error = isCurrentQuery ? searchState.error : "";
+
+  useEffect(() => {
+    let isActive = true;
+
+    if (!query) return undefined;
+
+    searchPlaces(query)
+      .then((places) => {
+        if (isActive) {
+          setSearchState({ query, results: places, error: "" });
+        }
+      })
+      .catch((searchError) => {
+        if (isActive) {
+          setSearchState({
+            query,
+            results: [],
+            error: searchError.message,
+          });
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [query]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -114,7 +141,11 @@ export default function SearchResult() {
       {query ? (
         <>
           <Heading>“{query}” 검색 결과</Heading>
-          {results.length > 0 ? (
+          {isLoading ? (
+            <Message>검색 중입니다.</Message>
+          ) : error ? (
+            <Message>{error}</Message>
+          ) : results.length > 0 ? (
             <List>
               {results.map((location) => (
                 <li key={location.id}>

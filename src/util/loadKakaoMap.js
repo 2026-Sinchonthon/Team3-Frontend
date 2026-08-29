@@ -38,7 +38,7 @@ export default function loadKakaoMap() {
 
     if (!existingScript) {
       script.id = KAKAO_MAP_SCRIPT_ID;
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false`;
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=services`;
       document.head.appendChild(script);
     } else if (window.kakao?.maps) {
       resolveKakaoMap();
