@@ -112,7 +112,8 @@ const Content = styled.span`
 `;
 
 export default function TipListItem({ tip, onSelect }) {
-  const category = findCategory(tip.categoryId);
+  // 마이페이지 목업처럼 categoryId 없이 라벨만 가진 데이터도 태그를 띄웁니다.
+  const categoryLabel = findCategory(tip.categoryId)?.tag ?? tip.category ?? "";
   const author = tip.author ?? {};
 
   return (
@@ -123,7 +124,7 @@ export default function TipListItem({ tip, onSelect }) {
           <span>{getResidenceLabel(author.residenceYears)}</span>
           <span>{Math.round(Number(author.trustScore) || 0)}%</span>
         </TrustBadge>
-        {category && <CategoryTag>{category.tag}</CategoryTag>}
+        {categoryLabel && <CategoryTag>{categoryLabel}</CategoryTag>}
       </MetaRow>
 
       <Body>

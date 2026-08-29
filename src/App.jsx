@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import MainLayout from "./common_ui/Layout/MainLayout";
 import ProtectedRoute from "./common_ui/ProtectedRoute/ProtectedRoute";
+import BoardPage from "./page/Board/BoardPage";
 import ComingSoon from "./page/ComingSoon/ComingSoon";
 import Editor from "./page/Editor/Editor";
 import HomePage from "./page/Home/HomePage";
@@ -24,12 +25,14 @@ export default function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/start" element={<FirstReg />} />
+          {/* 게시글 상세는 상단 바 / 하단 네비바 대신 자체 헤더와 댓글 입력창을 씁니다. */}
+          <Route path="/tips/:tipId" element={<TipFeed />} />
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/board" element={<BoardPage />} />
             <Route path="/search" element={<SearchResult />} />
             <Route path="/places/:placeId/tips" element={<PlaceTips />} />
             <Route path="/editor" element={<Editor />} />
-            <Route path="/tips/:tipId" element={<TipFeed />} />
             <Route path="/user" element={<UserPage />} />
             <Route path="/user/posts" element={<UserPostsPage />} />
             <Route path="/user/:userId" element={<UserPage />} />

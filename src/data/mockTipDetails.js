@@ -1,15 +1,21 @@
 import { findCategory } from "../constants/categories";
+import { getMockComments } from "./mockComments";
 import { mockPlaces, mockTips } from "./mockTips";
 
 /*
-게시글 상세(TipFeed)용 목업입니다.
+게시글 상세(TipFeed)용 목업
 
-홈 화면 바텀시트에서 넘어온 팁도 상세가 열리도록,
-지도용 목업(mockTips)에서 같은 데이터를 상세 형태로 파생시킵니다.
-API가 붙으면 이 파일은 통째로 지우고 TipAPI에서 서버 응답을 그대로 쓰면 됩니다.
+홈 화면 바텀시트 / 게시판에서 넘어온 팁도 상세가 열리도록,
+지도용 목업(mockTips)에서 같은 데이터를 상세 형태로 파생
+API가 붙으면 이 파일은 통째로 지우고 TipAPI에서 서버 응답을 그대로 쓰면 w됨
+
+상세에서 추가로 필요한 값(작성 일시 / 반응 수)은 게시글 상세 Figma를 기준으로 채움
 */
 
 const placesById = new Map(mockPlaces.map((place) => [place.id, place]));
+
+// 서버 집계가 붙기 전까지 게시글마다 일정한 값이 나오도록 id에서 파생시킵니다.
+const derivedCount = (id, seed) => (Math.abs(Number(id) || 0) + seed) % 4;
 
 function toTipDetail(tip) {
   const place = placesById.get(tip.placeId);
@@ -17,12 +23,21 @@ function toTipDetail(tip) {
   return {
     id: tip.id,
     author: {
+      id: tip.author.id,
       nickname: tip.author.nickname,
+      residenceYears: tip.author.residenceYears,
       trustScore: tip.author.trustScore,
+      isFollowing: false,
     },
+    categoryId: tip.categoryId,
     category: findCategory(tip.categoryId)?.tag ?? "",
     title: tip.title,
     content: tip.content,
+    createdAt: tip.createdAt,
+    likeCount: tip.likeCount,
+    dislikeCount: derivedCount(tip.id, 1),
+    scrapCount: derivedCount(tip.id, 2),
+    commentCount: getMockComments(tip.id).length,
     location: place
       ? {
           id: place.id,
@@ -39,12 +54,21 @@ const mockTipDetails = [
   {
     id: -1,
     author: {
+      id: -11,
       nickname: "신촌자취생",
+      residenceYears: 3,
       trustScore: 92,
+      isFollowing: false,
     },
-    category: "교통",
+    categoryId: "HOUSEHOLD",
+    category: "생활 가사",
     title: "서강대 후문으로 빠르게 가는 방법",
     content: "서강대 후문으로 갈 때는 이대역에서 내려오는 편이 더 빠릅니다.",
+    createdAt: "2026-08-29T17:17:00+09:00",
+    likeCount: 1,
+    dislikeCount: 1,
+    scrapCount: 1,
+    commentCount: 0,
     location: {
       id: "sogang-back-gate",
       name: "서강대학교 후문",

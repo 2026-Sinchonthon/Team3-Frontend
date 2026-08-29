@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
+import TipListItem from "../../common_ui/TipListItem/TipListItem";
 import { getTipsByPlace } from "../../util/TipAPI";
 
 const Container = styled.section`
@@ -39,34 +40,12 @@ const WriteButton = styled.button`
 `;
 
 const TipList = styled.ul`
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
   margin: 0;
   padding: 0;
-  gap: 0.75rem;
   list-style: none;
-`;
-
-const TipItem = styled.button`
-  width: 100%;
-  padding: 1rem;
-  border: 0.0625rem solid #dedede;
-  border-radius: 0.5rem;
-  background: #fff;
-  text-align: left;
-  cursor: pointer;
-`;
-
-const TipTitle = styled.h2`
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-`;
-
-const TipContent = styled.p`
-  margin: 0;
-  color: #555;
-  font-size: 0.875rem;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
 `;
 
 const EmptyState = styled.div`
@@ -155,13 +134,10 @@ export default function PlaceTips() {
         <TipList>
           {tips.map((tip) => (
             <li key={tip.id}>
-              <TipItem
-                type="button"
-                onClick={() => navigate(`/tips/${tip.id}`)}
-              >
-                <TipTitle>{tip.title}</TipTitle>
-                <TipContent>{tip.content}</TipContent>
-              </TipItem>
+              <TipListItem
+                tip={tip}
+                onSelect={() => navigate(`/tips/${tip.id}`)}
+              />
             </li>
           ))}
         </TipList>
