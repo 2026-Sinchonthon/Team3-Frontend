@@ -65,16 +65,9 @@ const LocationDetail = styled.p`
   font-size: 0.875rem;
 `;
 
-const LocationButton = styled.button`
-  justify-self: start;
-  padding: 0.625rem 0.875rem;
-  border: 0.0625rem solid #d7d7d7;
-  border-radius: 0.5rem;
-  background: #fff;
-  cursor: pointer;
-`;
-
 const SaveButton = styled.button`
+  justify-self: start;
+  width: 8rem;
   height: 2.75rem;
   border: 0;
   border-radius: 0.5rem;
@@ -175,9 +168,6 @@ export default function Editor() {
           </LocationBox>
         </div>
 
-        <LocationButton type="button" onClick={() => navigate("/search")}>
-          위치 변경
-        </LocationButton>
         <SaveButton type="submit" disabled={isSaving}>
           저장
         </SaveButton>
