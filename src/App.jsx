@@ -6,6 +6,7 @@ import ComingSoon from "./page/ComingSoon/ComingSoon";
 import Editor from "./page/Editor/Editor";
 import HomePage from "./page/Home/HomePage";
 import LoginPage from "./page/Login/LoginPage";
+import SignupPage from "./page/Signup/SignupPage";
 import PlaceTips from "./page/Tips/PlaceTips";
 import SearchResult from "./page/SearchResult/SearchResult";
 import TipFeed from "./page/Tips/TipFeed";
@@ -17,6 +18,7 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
