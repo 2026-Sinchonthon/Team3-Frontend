@@ -49,11 +49,11 @@ export async function renderGoogleLoginButton(
 
   if (!clientId) throw new Error("Google Client ID가 설정되지 않았습니다.");
   if (!container) throw new Error("Google 로그인 버튼 영역이 없습니다.");
-  if (signal?.aborted) return () => {};
+  if (signal?.aborted) return () => { };
 
   const google = await loadGoogleIdentityServices();
 
-  if (signal?.aborted) return () => {};
+  if (signal?.aborted) return () => { };
 
   if (!google?.accounts?.id) {
     throw new Error("Google 로그인 모듈을 초기화하지 못했습니다.");
@@ -76,6 +76,8 @@ export async function renderGoogleLoginButton(
   const renderToken = Symbol("google-login-button");
   googleButtonRenderTokens.set(container, renderToken);
   container.replaceChildren();
+  const width = Math.floor(container.clientWidth);
+
   google.accounts.id.renderButton(container, {
     type: "standard",
     theme: "outline",
@@ -83,7 +85,7 @@ export async function renderGoogleLoginButton(
     text: "continue_with",
     shape: "pill",
     logo_alignment: "left",
-    width: 320,
+    width,
   });
 
   return () => {

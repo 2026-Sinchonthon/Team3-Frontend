@@ -20,16 +20,16 @@ const Container = styled.section`
 
   background: #f7f7f7;
 `;
-
 const LoginBox = styled.div`
   width: min(100%, 22rem);
+  box-sizing: border-box;
+
   padding: 1.25rem;
 
   border: 0.0625rem solid #e5e7eb;
   border-radius: 1.5rem;
 
   background: #fff;
-
   box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 12%);
 `;
 
@@ -42,13 +42,10 @@ const Title = styled.h1`
 
 const GoogleButtonContainer = styled.div`
   display: flex;
-  justify-content: center;
-
+  width: 100%;
   min-height: 2.75rem;
-
-  overflow: hidden;
-
-  border-radius: 1.5rem;
+  justify-content: center;
+  align-items: center;
 `;
 
 export default function LoginPage() {
