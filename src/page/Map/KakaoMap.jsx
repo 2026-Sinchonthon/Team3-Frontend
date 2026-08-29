@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
-import loadKakaoMap from "../../utils/loadKakaoMap";
+import loadKakaoMap from "../../util/loadKakaoMap";
 import MapControls from "./MapControls";
 import TipPopup from "./TipPopup";
 
 const MapShell = styled.section`
   position: relative;
+  flex: 1;
   width: 100%;
+  height: 100%;
   min-height: 0;
 `;
 
