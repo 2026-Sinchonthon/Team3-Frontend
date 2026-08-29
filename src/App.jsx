@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
 import MainLayout from "./common_ui/Layout/MainLayout";
+import ProtectedRoute from "./common_ui/ProtectedRoute/ProtectedRoute";
 import ComingSoon from "./page/ComingSoon/ComingSoon";
 import Editor from "./page/Editor/Editor";
 import HomePage from "./page/Home/HomePage";
@@ -15,17 +16,20 @@ export default function App() {
   return (
     <ThemeProvider theme={theme}>
       <Routes>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/search" element={<SearchResult />} />
-          <Route path="/places/:placeId/tips" element={<PlaceTips />} />
-          <Route path="/editor" element={<Editor />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/tips/:tipId" element={<TipFeed />} />
-          <Route path="/user" element={<UserPage />} />
-          <Route path="/user/:userId" element={<UserPage />} />
-          {/* 게시판이 붙기 전까지의 임시 안내 */}
-          <Route path="*" element={<ComingSoon />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/search" element={<SearchResult />} />
+            <Route path="/places/:placeId/tips" element={<PlaceTips />} />
+            <Route path="/editor" element={<Editor />} />
+            <Route path="/tips/:tipId" element={<TipFeed />} />
+            <Route path="/user" element={<UserPage />} />
+            <Route path="/user/:userId" element={<UserPage />} />
+            {/* 게시판이 붙기 전까지의 임시 안내 */}
+            <Route path="*" element={<ComingSoon />} />
+          </Route>
         </Route>
       </Routes>
     </ThemeProvider>
