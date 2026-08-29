@@ -7,7 +7,7 @@ export async function createTip(tip) {
 
 export async function getTipsByPlace() {
   // TODO: API 명세 확정 후 장소 ID를 이용한 조회 요청으로 교체합니다.
-  return [];
+  return mockTipDetails;
 }
 
 export async function getTipById(tipId) {
