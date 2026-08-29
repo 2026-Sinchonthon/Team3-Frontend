@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
 import {
@@ -9,9 +9,9 @@ import {
 
 const Container = styled.section`
   display: grid;
-  flex: 1;
   place-items: center;
   width: 100%;
+  min-height: 100dvh;
   padding: 1.5rem 1rem;
   background: #f7f7f7;
 `;
@@ -63,6 +63,7 @@ const GoogleButtonContainer = styled.div`
 export default function LoginPage() {
   const googleButtonRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState(null);
 
@@ -126,7 +127,15 @@ export default function LoginPage() {
   const closeAlert = () => setAlert(null);
   const confirmAlert = () => {
     if (alert?.userId != null) {
-      navigate("/user");
+      const requestedPath = location.state?.from;
+      const destination =
+        typeof requestedPath === "string" &&
+        requestedPath.startsWith("/") &&
+        requestedPath !== "/login"
+          ? requestedPath
+          : "/user";
+
+      navigate(destination, { replace: true });
       return;
     }
 
