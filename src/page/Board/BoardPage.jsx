@@ -7,6 +7,7 @@ import SearchBar from "../../common_ui/SearchBar/SearchBar";
 import SortTabs from "../../common_ui/SortTabs/SortTabs";
 import TipListItem from "../../common_ui/TipListItem/TipListItem";
 import { DEFAULT_SORT } from "../../constants/sortOptions";
+import { getCategories } from "../../util/PlaceAPI";
 import { getTips } from "../../util/TipAPI";
 import filterTips, {
   normalizeKeyword,
@@ -71,6 +72,7 @@ export default function BoardPage() {
   const [boardState, setBoardState] = useState({
     isLoaded: false,
     tips: [],
+    categories: [],
     error: "",
   });
 
@@ -80,15 +82,18 @@ export default function BoardPage() {
   useEffect(() => {
     let isActive = true;
 
-    getTips()
-      .then((tips) => {
-        if (isActive) setBoardState({ isLoaded: true, tips, error: "" });
+    Promise.all([getTips(), getCategories()])
+      .then(([tips, categories]) => {
+        if (isActive) {
+          setBoardState({ isLoaded: true, tips, categories, error: "" });
+        }
       })
       .catch((requestError) => {
         if (isActive) {
           setBoardState({
             isLoaded: true,
             tips: [],
+            categories: [],
             error: requestError.message || "게시글을 불러오지 못했습니다.",
           });
         }
@@ -121,6 +126,7 @@ export default function BoardPage() {
       <Filters>
         <SearchBar value={keyword} onChange={setKeyword} />
         <CategoryFilter
+          categories={boardState.categories}
           selectedIds={selectedCategoryIds}
           onToggle={handleToggleCategory}
         />

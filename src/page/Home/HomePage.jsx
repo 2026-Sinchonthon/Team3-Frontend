@@ -1,13 +1,15 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import AlertModal from "../../common_ui/Alert/Alert";
 import BottomSheet from "../../common_ui/BottomSheet/BottomSheet";
 import CategoryFilter from "../../common_ui/CategoryFilter/CategoryFilter";
 import SearchBar from "../../common_ui/SearchBar/SearchBar";
 import SortTabs from "../../common_ui/SortTabs/SortTabs";
 import TipListItem from "../../common_ui/TipListItem/TipListItem";
 import { DEFAULT_SORT } from "../../constants/sortOptions";
-import { mockPlaces, mockTips } from "../../data/mockTips";
+import { getCategories, getMapPlaces } from "../../util/PlaceAPI";
+import { getTips } from "../../util/TipAPI";
 import groupTipsByPlace from "../../util/placeTips";
 import filterTips, {
   normalizeKeyword,
@@ -77,31 +79,58 @@ export default function HomePage() {
   const [sheetStage, setSheetStage] = useState(focusPlaceId ? "half" : "collapsed");
   const [sortId, setSortId] = useState(DEFAULT_SORT);
   const [isLocating, setIsLocating] = useState(false);
+  const [mapData, setMapData] = useState({
+    places: [],
+    tips: [],
+    categories: [],
+    error: "",
+  });
   // HomeMap이 지도 조작 함수를 담아 주는 통로입니다.
   const mapControllerRef = useRef(null);
 
   const trimmedKeyword = normalizeKeyword(keyword);
   const isSearch = trimmedKeyword.length > 0;
 
+  useEffect(() => {
+    let isActive = true;
+
+    Promise.all([getMapPlaces(), getTips(), getCategories()])
+      .then(([places, tips, categories]) => {
+        if (isActive) setMapData({ places, tips, categories, error: "" });
+      })
+      .catch((error) => {
+        if (isActive) {
+          setMapData((current) => ({
+            ...current,
+            error: error.message || "지도 데이터를 불러오지 못했습니다.",
+          }));
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
   const placesById = useMemo(
-    () => new Map(mockPlaces.map((place) => [place.id, place])),
-    [],
+    () => new Map(mapData.places.map((place) => [place.id, place])),
+    [mapData.places],
   );
 
   // 홈은 장소명 / 주소까지 검색 대상에 넣습니다.
   const visibleTips = useMemo(
     () =>
-      filterTips(mockTips, {
+      filterTips(mapData.tips, {
         keyword: trimmedKeyword,
         categoryIds: selectedCategoryIds,
         getPlace: (tip) => placesById.get(tip.placeId),
       }),
-    [selectedCategoryIds, trimmedKeyword, placesById],
+    [mapData.tips, selectedCategoryIds, trimmedKeyword, placesById],
   );
 
   const placeGroups = useMemo(
-    () => groupTipsByPlace(mockPlaces, visibleTips),
-    [visibleTips],
+    () => groupTipsByPlace(mapData.places, visibleTips),
+    [mapData.places, visibleTips],
   );
 
   const selectedGroup = useMemo(
@@ -164,6 +193,7 @@ export default function HomePage() {
       <MapOverlay>
         <SearchBar value={keyword} onChange={setKeyword} />
         <CategoryFilter
+          categories={mapData.categories}
           selectedIds={selectedCategoryIds}
           onToggle={handleToggleCategory}
         />
@@ -198,6 +228,17 @@ export default function HomePage() {
           <EmptyMessage>표시할 꿀팁이 없습니다.</EmptyMessage>
         )}
       </BottomSheet>
+
+      {mapData.error && (
+        <AlertModal
+          type="alert"
+          color="red"
+          title="지도 데이터 조회 실패"
+          content={mapData.error}
+          onConfirm={() => setMapData((current) => ({ ...current, error: "" }))}
+          onClose={() => setMapData((current) => ({ ...current, error: "" }))}
+        />
+      )}
     </Container>
   );
 }
