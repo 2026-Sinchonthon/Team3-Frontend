@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
 import StaticLocationMap from "../../common_ui/StaticLocationMap/StaticLocationMap";
-import { CATEGORIES } from "../../constants/categories";
+import { getCategories } from "../../util/PlaceAPI";
 import { createTip } from "../../util/TipAPI";
 
 const Container = styled.section`
@@ -98,11 +98,36 @@ export default function Editor() {
   const [selectedLocation] = useState(
     routeLocation.state?.location ?? routeLocation.state?.place ?? null,
   );
-  const [categoryId, setCategoryId] = useState(CATEGORIES[0]?.id ?? "");
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [alert, setAlert] = useState(null);
+
+  useEffect(() => {
+    let isActive = true;
+
+    getCategories()
+      .then((items) => {
+        if (!isActive) return;
+        setCategories(items);
+        setCategoryId((current) => current || String(items[0]?.id ?? ""));
+      })
+      .catch((error) => {
+        if (isActive) {
+          setAlert({
+            color: "red",
+            title: "카테고리 조회 실패",
+            content: error.message,
+          });
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const latitude = Number(
     selectedLocation?.latitude ?? selectedLocation?.lat,
@@ -181,9 +206,9 @@ export default function Editor() {
             onChange={(event) => setCategoryId(event.target.value)}
             disabled={isSaving}
           >
-            {CATEGORIES.map((category) => (
+            {categories.map((category) => (
               <option key={category.id} value={category.id}>
-                {category.tag}
+                {category.name}
               </option>
             ))}
           </Select>
