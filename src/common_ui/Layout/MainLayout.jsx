@@ -6,8 +6,9 @@ import Footer from "../Footer/Footer";
 const Layout = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: min(100%, 23.4375rem);
   height: 100dvh;
+  margin: 0 auto;
   overflow: hidden;
   background: #fff;
 `;
