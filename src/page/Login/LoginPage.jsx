@@ -85,6 +85,7 @@ export default function LoginPage() {
               ? "회원가입과 Google 로그인이 완료되었습니다."
               : "Google 로그인이 완료되었습니다.",
             userId: loginData.userId,
+            isNewUser: Boolean(loginData.isNewUser),
           });
         }
       } catch (error) {
@@ -127,6 +128,14 @@ export default function LoginPage() {
   const closeAlert = () => setAlert(null);
   const confirmAlert = () => {
     if (alert?.userId != null) {
+      if (alert.isNewUser) {
+        navigate("/signup", {
+          replace: true,
+          state: { from: location.state?.from },
+        });
+        return;
+      }
+
       const requestedPath = location.state?.from;
       const destination =
         typeof requestedPath === "string" &&

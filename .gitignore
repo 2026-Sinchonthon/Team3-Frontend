@@ -26,3 +26,19 @@ dist-ssr
 *.sw?
 
 ref/
+
+# Agent & AI Artifacts / Models
+.agents/
+.agent/
+.gemini/
+.antigravity/
+models/
+model/
+*.bin
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.tflite
+*.ckpt
+.vercel
