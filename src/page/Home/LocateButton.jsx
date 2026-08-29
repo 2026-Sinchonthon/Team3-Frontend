@@ -1,13 +1,14 @@
 import styled from "styled-components";
-import { WriteIcon } from "../../common_ui/Icon/Icons";
+import { CrosshairIcon } from "../../common_ui/Icon/Icons";
 
 /*
-목적: 홈 화면의 글쓰기 버튼 (IA - 홈 > 글쓰기 > 지도에서 위치 지정)
+목적: 홈 화면에서 지도를 현재 위치로 옮기는 버튼 (Figma 121:528)
+글쓰기 버튼과 같은 높이에, 지도 오른쪽 아래에 놓입니다.
 */
 
-const Fab = styled.button`
+const Button = styled.button`
   position: absolute;
-  left: 1rem;
+  right: 1rem;
   z-index: ${({ theme }) => theme.layer.fab};
   display: grid;
   place-items: center;
@@ -25,16 +26,27 @@ const Fab = styled.button`
     transform: scale(0.96);
   }
 
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
   &:focus-visible {
     outline: 0.125rem solid ${({ theme }) => theme.color.brandStrong};
     outline-offset: 0.125rem;
   }
 `;
 
-export default function WriteFab({ bottom = "1rem", onClick }) {
+export default function LocateButton({ bottom = "1rem", isLocating, onClick }) {
   return (
-    <Fab type="button" aria-label="꿀팁 글쓰기" style={{ bottom }} onClick={onClick}>
-      <WriteIcon />
-    </Fab>
+    <Button
+      type="button"
+      aria-label="현재 위치로 이동"
+      style={{ bottom }}
+      disabled={isLocating}
+      onClick={onClick}
+    >
+      <CrosshairIcon />
+    </Button>
   );
 }
