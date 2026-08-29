@@ -1,10 +1,11 @@
 import mockUserDetails from "../data/mockUserDetails";
+import { getAuthenticatedUserId } from "./AuthAPI";
 
 const MOCK_CURRENT_USER_ID = -1;
 
 export function getCurrentUserId() {
   // TODO: 로그인 구현 후 Auth Context 또는 인증 저장소의 사용자 ID로 교체합니다.
-  return MOCK_CURRENT_USER_ID;
+  return getAuthenticatedUserId() ?? MOCK_CURRENT_USER_ID;
 }
 
 export async function searchUsers() {
