@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
 import {
@@ -9,14 +9,41 @@ import {
 
 const Container = styled.section`
   display: grid;
-  flex: 1;
   place-items: center;
   width: 100%;
+  min-height: 100dvh;
   padding: 1.5rem 1rem;
+  background: #f7f7f7;
 `;
 
 const LoginBox = styled.div`
   width: min(100%, 22rem);
+  padding: 1.25rem;
+  border: 0.0625rem solid #e5e7eb;
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 12%);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    background: #f9fafb;
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover,
+    &:active {
+      transform: none;
+    }
+  }
 `;
 
 const Title = styled.h1`
@@ -29,17 +56,21 @@ const GoogleButtonContainer = styled.div`
   display: flex;
   min-height: 2.75rem;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 1.5rem;
 `;
 
 export default function LoginPage() {
   const googleButtonRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [alert, setAlert] = useState(null);
 
   useEffect(() => {
     let cleanupButton;
     let isActive = true;
+    const abortController = new AbortController();
 
     const handleCredential = async (idToken) => {
       try {
@@ -69,13 +100,15 @@ export default function LoginPage() {
       }
     };
 
-    renderGoogleLoginButton(googleButtonRef.current, handleCredential)
+    renderGoogleLoginButton(googleButtonRef.current, handleCredential, {
+      signal: abortController.signal,
+    })
       .then((cleanup) => {
         if (isActive) cleanupButton = cleanup;
         else cleanup();
       })
       .catch((error) => {
-        if (isActive) {
+        if (isActive && !abortController.signal.aborted) {
           setAlert({
             color: "red",
             title: "로그인 준비 실패",
@@ -86,6 +119,7 @@ export default function LoginPage() {
 
     return () => {
       isActive = false;
+      abortController.abort();
       cleanupButton?.();
     };
   }, []);
@@ -93,7 +127,15 @@ export default function LoginPage() {
   const closeAlert = () => setAlert(null);
   const confirmAlert = () => {
     if (alert?.userId != null) {
-      navigate("/user");
+      const requestedPath = location.state?.from;
+      const destination =
+        typeof requestedPath === "string" &&
+        requestedPath.startsWith("/") &&
+        requestedPath !== "/login"
+          ? requestedPath
+          : "/user";
+
+      navigate(destination, { replace: true });
       return;
     }
 
