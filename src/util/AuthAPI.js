@@ -108,3 +108,18 @@ export function clearAuthSession() {
   delete api.defaults.headers.common.Authorization;
   window.google?.accounts?.id?.disableAutoSelect();
 }
+
+export async function logout() {
+  const response = await api.post(
+    "/api/v1/auth/logout",
+    null,
+    { withCredentials: true },
+  );
+
+  if (!response.data?.success || response.data?.code !== 200) {
+    throw new Error(response.data?.message || "로그아웃에 실패했습니다.");
+  }
+
+  clearAuthSession();
+  return response.data;
+}
