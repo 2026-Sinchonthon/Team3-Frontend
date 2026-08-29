@@ -13,10 +13,37 @@ const Container = styled.section`
   place-items: center;
   width: 100%;
   padding: 1.5rem 1rem;
+  background: #f7f7f7;
 `;
 
 const LoginBox = styled.div`
   width: min(100%, 22rem);
+  padding: 1.25rem;
+  border: 0.0625rem solid #e5e7eb;
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 12%);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    background: #f9fafb;
+    transform: scale(1.02);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover,
+    &:active {
+      transform: none;
+    }
+  }
 `;
 
 const Title = styled.h1`
@@ -29,6 +56,8 @@ const GoogleButtonContainer = styled.div`
   display: flex;
   min-height: 2.75rem;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 1.5rem;
 `;
 
 export default function LoginPage() {
