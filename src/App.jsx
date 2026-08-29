@@ -5,6 +5,7 @@ import MapPage from "./page/Map/MapPage";
 import PlaceTips from "./page/Tips/PlaceTips";
 import SearchResult from "./page/SearchResult/SearchResult";
 import TipFeed from "./page/Tips/TipFeed";
+import UserPage from "./page/User/UserPage";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/places/:placeId/tips" element={<PlaceTips />} />
         <Route path="/editor" element={<Editor />} />
         <Route path="/tips/:tipId" element={<TipFeed />} />
+        <Route path="/user/:userId" element={<UserPage />} />
       </Route>
     </Routes>
   );
