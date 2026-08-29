@@ -93,6 +93,11 @@ function normalizeTipCreateRequest(tip) {
 }
 
 export async function createTip(tip) {
+  const response = await api.post("/api/v1/tips", tip);
+  return response.data;
+}
+
+export async function createTipFromPlace(tip) {
   const response = await api.post("/api/tips", normalizeTipCreateRequest(tip));
   return unwrapResponse(response, "팁을 등록하지 못했습니다.");
 }
