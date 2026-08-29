@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import styled from "styled-components";
+import { searchUsers } from "../../util/UserAPI";
 import searchPlaces from "../../util/searchPlaces";
+
+const SEARCH_TYPES = {
+  PLACE: "place",
+  USER: "user",
+};
 
 const Container = styled.section`
   width: min(100%, 40rem);
@@ -13,6 +19,15 @@ const SearchForm = styled.form`
   display: flex;
   margin-bottom: 1.5rem;
   gap: 0.5rem;
+`;
+
+const SearchTypeSelect = styled.select`
+  height: 2.75rem;
+  padding: 0 0.625rem;
+  border: 0.0625rem solid #d7d7d7;
+  border-radius: 0.5rem;
+  background: #fff;
+  font-size: 0.875rem;
 `;
 
 const SearchInput = styled.input`
@@ -58,13 +73,20 @@ const ResultButton = styled.button`
   cursor: pointer;
 `;
 
+const ResultItem = styled.article`
+  padding: 1rem;
+  border: 0.0625rem solid #dedede;
+  border-radius: 0.5rem;
+  background: #fff;
+`;
+
 const Name = styled.strong`
   display: block;
   margin-bottom: 0.375rem;
   font-size: 1rem;
 `;
 
-const Address = styled.span`
+const Detail = styled.span`
   color: #666;
   font-size: 0.875rem;
 `;
@@ -79,32 +101,40 @@ export default function SearchResult() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q")?.trim() ?? "";
+  const queryType = searchParams.get("type");
+  const activeType =
+    queryType === SEARCH_TYPES.USER ? SEARCH_TYPES.USER : SEARCH_TYPES.PLACE;
+  const searchKey = `${activeType}:${query}`;
   const [keyword, setKeyword] = useState(query);
+  const [searchType, setSearchType] = useState(activeType);
   const [searchState, setSearchState] = useState({
-    query: "",
+    key: "",
     results: [],
     error: "",
   });
-  const isCurrentQuery = searchState.query === query;
-  const isLoading = Boolean(query) && !isCurrentQuery;
-  const results = isCurrentQuery ? searchState.results : [];
-  const error = isCurrentQuery ? searchState.error : "";
+  const isCurrentSearch = searchState.key === searchKey;
+  const isLoading = Boolean(query) && !isCurrentSearch;
+  const results = isCurrentSearch ? searchState.results : [];
+  const error = isCurrentSearch ? searchState.error : "";
 
   useEffect(() => {
     let isActive = true;
 
     if (!query) return undefined;
 
-    searchPlaces(query)
-      .then((places) => {
+    const request =
+      activeType === SEARCH_TYPES.PLACE ? searchPlaces(query) : searchUsers(query);
+
+    request
+      .then((searchResults) => {
         if (isActive) {
-          setSearchState({ query, results: places, error: "" });
+          setSearchState({ key: searchKey, results: searchResults, error: "" });
         }
       })
       .catch((searchError) => {
         if (isActive) {
           setSearchState({
-            query,
+            key: searchKey,
             results: [],
             error: searchError.message,
           });
@@ -114,25 +144,37 @@ export default function SearchResult() {
     return () => {
       isActive = false;
     };
-  }, [query]);
+  }, [activeType, query, searchKey]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const trimmedKeyword = keyword.trim();
 
     if (!trimmedKeyword) return;
-    setSearchParams({ q: trimmedKeyword });
+    setSearchParams({ type: searchType, q: trimmedKeyword });
   };
 
   return (
     <Container>
       <SearchForm role="search" onSubmit={handleSubmit}>
+        <SearchTypeSelect
+          value={searchType}
+          aria-label="검색 유형"
+          onChange={(event) => setSearchType(event.target.value)}
+        >
+          <option value={SEARCH_TYPES.PLACE}>장소</option>
+          <option value={SEARCH_TYPES.USER}>유저</option>
+        </SearchTypeSelect>
         <SearchInput
           type="search"
           value={keyword}
           enterKeyHint="search"
-          placeholder="장소를 검색해 보세요"
-          aria-label="장소 검색어"
+          placeholder={
+            searchType === SEARCH_TYPES.PLACE
+              ? "장소를 검색해 보세요"
+              : "유저를 검색해 보세요"
+          }
+          aria-label="검색어"
           onChange={(event) => setKeyword(event.target.value)}
         />
         <SearchButton type="submit">검색</SearchButton>
@@ -147,15 +189,26 @@ export default function SearchResult() {
             <Message>{error}</Message>
           ) : results.length > 0 ? (
             <List>
-              {results.map((location) => (
-                <li key={location.id}>
-                  <ResultButton
-                    type="button"
-                    onClick={() => navigate("/editor", { state: { location } })}
-                  >
-                    <Name>{location.name}</Name>
-                    <Address>{location.address}</Address>
-                  </ResultButton>
+              {results.map((result) => (
+                <li key={result.id}>
+                  {activeType === SEARCH_TYPES.PLACE ? (
+                    <ResultButton
+                      type="button"
+                      onClick={() =>
+                        navigate("/editor", { state: { location: result } })
+                      }
+                    >
+                      <Name>{result.name}</Name>
+                      <Detail>{result.address}</Detail>
+                    </ResultButton>
+                  ) : (
+                    <ResultItem>
+                      <Name>{result.nickname || result.name}</Name>
+                      {result.introduction && (
+                        <Detail>{result.introduction}</Detail>
+                      )}
+                    </ResultItem>
+                  )}
                 </li>
               ))}
             </List>
@@ -164,7 +217,7 @@ export default function SearchResult() {
           )}
         </>
       ) : (
-        <Message>팁을 작성할 장소를 검색해 주세요.</Message>
+        <Message>검색어를 입력해 주세요.</Message>
       )}
     </Container>
   );
