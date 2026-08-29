@@ -16,6 +16,7 @@ export default function App() {
         <Route path="/places/:placeId/tips" element={<PlaceTips />} />
         <Route path="/editor" element={<Editor />} />
         <Route path="/tips/:tipId" element={<TipFeed />} />
+        <Route path="/user" element={<UserPage />} />
         <Route path="/user/:userId" element={<UserPage />} />
       </Route>
     </Routes>

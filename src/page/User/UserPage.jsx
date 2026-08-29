@@ -4,6 +4,7 @@ import styled from "styled-components";
 import AlertModal from "../../common_ui/Alert/Alert";
 import {
   followUser,
+  getCurrentUserId,
   getUserProfile,
   unfollowUser,
 } from "../../util/UserAPI";
@@ -77,24 +78,27 @@ const LoadingMessage = styled.p`
 export default function UserPage() {
   const { userId } = useParams();
   const navigate = useNavigate();
+  const currentUserId = getCurrentUserId();
+  const targetUserId = userId ?? currentUserId;
+  const isOwnProfile = String(targetUserId) === String(currentUserId);
   const [userState, setUserState] = useState({
     userId: "",
     profile: null,
     error: "",
   });
   const [isFollowPending, setIsFollowPending] = useState(false);
-  const isCurrentUser = userState.userId === userId;
+  const isCurrentUser = String(userState.userId) === String(targetUserId);
   const profile = isCurrentUser ? userState.profile : null;
   const error = isCurrentUser ? userState.error : "";
 
   useEffect(() => {
     let isActive = true;
 
-    getUserProfile(userId)
+    getUserProfile(targetUserId)
       .then((userProfile) => {
         if (isActive) {
           setUserState({
-            userId,
+            userId: targetUserId,
             profile: { ...DEFAULT_PROFILE, ...userProfile },
             error: "",
           });
@@ -103,7 +107,7 @@ export default function UserPage() {
       .catch((requestError) => {
         if (isActive) {
           setUserState({
-            userId,
+            userId: targetUserId,
             profile: null,
             error: requestError.message || "사용자 정보를 불러오지 못했습니다.",
           });
@@ -113,7 +117,7 @@ export default function UserPage() {
     return () => {
       isActive = false;
     };
-  }, [userId]);
+  }, [targetUserId]);
 
   const toggleFollow = async () => {
     if (!profile || isFollowPending) return;
@@ -122,9 +126,9 @@ export default function UserPage() {
       setIsFollowPending(true);
 
       if (profile.isFollowing) {
-        await unfollowUser(userId);
+        await unfollowUser(targetUserId);
       } else {
-        await followUser(userId);
+        await followUser(targetUserId);
       }
 
       setUserState((current) => ({
@@ -167,14 +171,16 @@ export default function UserPage() {
             <Nickname>{profile.nickname}</Nickname>
             <FollowerCount>팔로워 {profile.followerCount}명</FollowerCount>
           </UserInfo>
-          <FollowButton
-            type="button"
-            $isFollowing={profile.isFollowing}
-            disabled={isFollowPending}
-            onClick={toggleFollow}
-          >
-            {profile.isFollowing ? "팔로잉" : "팔로우"}
-          </FollowButton>
+          {!isOwnProfile && (
+            <FollowButton
+              type="button"
+              $isFollowing={profile.isFollowing}
+              disabled={isFollowPending}
+              onClick={toggleFollow}
+            >
+              {profile.isFollowing ? "팔로잉" : "팔로우"}
+            </FollowButton>
+          )}
         </Profile>
       )}
 
