@@ -69,7 +69,7 @@ export async function renderGoogleLoginButton(
       }
     },
     auto_select: false,
-    use_fedcm_for_prompt: true,
+    use_fedcm_for_button: true,
     itp_support: true,
   });
 
