@@ -1,4 +1,5 @@
 import mockUserDetails from "../data/mockUserDetails";
+import api from "./axios";
 import { getAuthenticatedUserId } from "./AuthAPI";
 
 const MOCK_CURRENT_USER_ID = -1;
@@ -6,6 +7,22 @@ const MOCK_CURRENT_USER_ID = -1;
 export function getCurrentUserId() {
   // TODO: 로그인 구현 후 Auth Context 또는 인증 저장소의 사용자 ID로 교체합니다.
   return getAuthenticatedUserId() ?? MOCK_CURRENT_USER_ID;
+}
+
+export async function submitOnboarding({ nickname, livingAloneYears }) {
+  if (!nickname) throw new Error("닉네임을 입력해 주세요.");
+  if (livingAloneYears == null) throw new Error("자취 연차를 선택해 주세요.");
+
+  const response = await api.patch(
+    "/api/users/me/onboarding",
+    {
+      nickname: String(nickname).trim(),
+      livingAloneYears: Number(livingAloneYears),
+    },
+    { withCredentials: true },
+  );
+
+  return response.data;
 }
 
 export async function searchUsers() {
