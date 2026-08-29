@@ -9,16 +9,19 @@ import styled, { css } from "styled-components";
 props:
 - size     : md(카테고리 필터) | sm(정렬 선택). 기본값 md
 - selected : 선택 여부. 선택 시 브랜드 색으로 채워집니다.
+
+Figma 공통 칩 컴포넌트는 pill 형태(radius 60)이며
+카테고리는 15px SemiBold / 12·10 패딩, 정렬은 13px Regular / 12·7 패딩입니다.
 */
 
 const SIZE_STYLE = {
   md: css`
-    padding: 0.625rem;
+    padding: 0.625rem 0.75rem;
     font-size: ${({ theme }) => theme.font.sm};
-    font-weight: 700;
+    font-weight: 600;
   `,
   sm: css`
-    padding: 0.3125rem 0.625rem;
+    padding: 0.4375rem 0.75rem;
     font-size: ${({ theme }) => theme.font.xs};
     font-weight: 400;
   `,
@@ -27,7 +30,7 @@ const SIZE_STYLE = {
 const Chip = styled.button`
   flex: none;
   border: 0;
-  border-radius: ${({ theme }) => theme.radius.md};
+  border-radius: ${({ theme }) => theme.radius.pill};
   background: ${({ theme, $selected }) =>
     $selected ? theme.color.brand : theme.color.surfaceMuted};
   color: ${({ theme }) => theme.color.text};

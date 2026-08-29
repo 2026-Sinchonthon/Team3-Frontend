@@ -105,3 +105,68 @@ export function CrosshairIcon(props) {
     </svg>
   );
 }
+
+export function HeartIcon({ filled = false, ...props }) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <path
+        d="M20.84 4.61C20.3292 4.099 19.7228 3.69365 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69365 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.90831 3.57831 8.50903 2.99871 7.05 2.99871C5.59097 2.99871 4.19169 3.57831 3.16 4.61C2.12831 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.12831 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7564 11.2728 22.0329 10.6054C22.3095 9.9379 22.4518 9.22249 22.4518 8.5C22.4518 7.77751 22.3095 7.0621 22.0329 6.39464C21.7564 5.72719 21.351 5.12076 20.84 4.61Z"
+        stroke="currentColor"
+        fill={filled ? "currentColor" : "none"}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function MehIcon(props) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <g stroke="currentColor" {...STROKE_PROPS}>
+        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" />
+        <path d="M8 15H16" />
+        <path d="M9 9H9.01" />
+        <path d="M15 9H15.01" />
+      </g>
+    </svg>
+  );
+}
+
+export function MessageCircleIcon(props) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <g stroke="currentColor" {...STROKE_PROPS}>
+        <path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7117 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0034 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92176 4.44061 8.37485 5.27072 7.03255C6.10083 5.69025 7.28825 4.60557 8.7 3.9C9.87812 3.30493 11.1801 2.99656 12.5 3H13C15.0843 3.11499 17.053 3.99476 18.5291 5.47086C20.0052 6.94696 20.885 8.91565 21 11V11.5Z" />
+      </g>
+    </svg>
+  );
+}
+
+export function InboxIcon({ filled = false, ...props }) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <g
+        stroke="currentColor"
+        {...STROKE_PROPS}
+        fill={filled ? "currentColor" : "none"}
+        fillOpacity={filled ? 0.25 : 0}
+      >
+        <path d="M5.45 5.11L2 12V18C2 18.5304 2.21071 19.0391 2.58579 19.4142C2.96086 19.7893 3.46957 20 4 20H20C20.5304 20 21.0391 19.7893 21.4142 19.4142C21.7893 19.0391 22 18.5304 22 18V12L18.55 5.11C18.3844 4.77679 18.1292 4.49637 17.813 4.30028C17.4967 4.10419 17.1321 4.0002 16.76 4H7.24C6.86792 4.0002 6.50326 4.10419 6.18704 4.30028C5.87083 4.49637 5.61558 4.77679 5.45 5.11Z" />
+        <path fill="none" d="M22 12H16L14 15H10L8 12H2" />
+      </g>
+    </svg>
+  );
+}
+
+export function ArrowUpIcon(props) {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" {...props}>
+      <g stroke="currentColor" {...STROKE_PROPS}>
+        <path d="M12 19V5" />
+        <path d="M5 12L12 5L19 12" />
+      </g>
+    </svg>
+  );
+}
