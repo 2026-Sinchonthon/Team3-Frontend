@@ -1,10 +1,15 @@
+import mockUserDetails from "../data/mockUserDetails";
+
 export async function searchUsers() {
   throw new Error("사용자 검색 API 명세가 필요합니다.");
 }
 
-export async function getUserProfile() {
+export async function getUserProfile(userId) {
   // TODO: API 명세 확정 후 사용자 프로필 조회 요청을 구현합니다.
-  return null;
+  const user = mockUserDetails.find(({ id }) => String(id) === String(userId));
+
+  if (!user) throw new Error("존재하지 않는 사용자입니다.");
+  return user;
 }
 
 export async function followUser() {
