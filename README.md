@@ -294,14 +294,13 @@ ex) fix: 구글 로그인 버튼 클릭 흐름 복구
 
 **2026 신촌톤 (Sinchonthon) Team 3**
 
-| 역할 | 이름 | GitHub | 담당 |
-|:---:|:---:|:---:|:---|
-| PM |  |  |  |
-| Design |  |  |  |
-| Frontend |  |  |  |
-| Frontend |  |  |  |
-| Backend |  |  |  |
-| Backend |  |  |  |
+| 역할 | 이름 | 소속 |GitHub | 담당 |
+|:---:|:---:|:---:|:---:|:---|
+| PM & Design | 이가영 | 연세대 |  |  |
+| Frontend | 김태성 | 서강대 |  |  |
+| Frontend | 김민혜 | 이화여대 |  |  |
+| Backend | 고선태 | 연세대 |  |  |
+| Backend | 김태희 | 서강대 |  |  |
 
 ***
 
